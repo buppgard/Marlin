@@ -207,6 +207,12 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     info.feedrate = uint16_t(MMS_TO_MMM(feedrate_mm_s));
     info.zraise = zraise;
     info.flag.raised = raised;                      // Was Z raised before power-off?
+    // BDU...Adding
+    info.cur_feedrate_percentage = feedrate_percentage;
+    for (unsigned int i = 1; i <= EXTRUDERS; i++) {
+      info.cur_flow_percentage[i] = planner.flow_percentage[i];
+      info.cur_hotend_temp[i] = thermalManager.temp_hotend[i].target;
+    }
 
     TERN_(GCODE_REPEAT_MARKERS, info.stored_repeat = repeat);
     TERN_(HAS_HOME_OFFSET, info.home_offset = home_offset);
@@ -561,6 +567,13 @@ void PrintJobRecovery::resume() {
   // Restore E position with G92.9
   PROCESS_SUBCOMMANDS_NOW(TS(F("G92.9E"), p_float_t(resume_pos.e, 3)));
 
+  //Added - BDU
+  PROCESS_SUBCOMMANDS_NOW(TS(F("M220S"), info.cur_feedrate_percentage));
+  for (unsigned int i = 1; i <= EXTRUDERS; i++) {
+    PROCESS_SUBCOMMANDS_NOW(TS(F("M221S"), info.cur_flow_percentage[i], F("T"), i));
+    PROCESS_SUBCOMMANDS_NOW(TS(F("104T"), i, F("S"), info.cur_hotend_temp));
+  }
+
   TERN_(GCODE_REPEAT_MARKERS, repeat = info.stored_repeat);
   TERN_(HAS_HOME_OFFSET, home_offset = info.home_offset);
   TERN_(HAS_WORKSPACE_OFFSET, workspace_offset = info.workspace_offset);
@@ -590,6 +603,19 @@ void PrintJobRecovery::resume() {
         DEBUG_EOL();
 
         DEBUG_ECHOLNPGM("feedrate: ", info.feedrate);
+
+        //BDU...Added
+        DEBUG_ECHOLNPGM("feedrate percentage: ", info.cur_feedrate_percentage);
+        for (unsigned int i = 1; i <= EXTRUDERS; i++) {
+          DEBUG_ECHOLN(F("extruder "), i, F(" flow percentage: "), info.cur_flow_percentage[i]);
+          DEBUG_ECHOLN(F("extruder "), i, F(" target temp: "), info.cur_hotend_temp[i]);
+        }
+          
+          
+
+
+
+
 
         DEBUG_ECHOLNPGM("zraise: ", info.zraise, " ", info.flag.raised ? "(before)" : "");
 

@@ -49,7 +49,7 @@
   #define POWER_LOSS_ZRAISE 2 // Default Z-raise on outage or resume
 #endif
 
-//#define DEBUG_POWER_LOSS_RECOVERY
+#define DEBUG_POWER_LOSS_RECOVERY
 //#define SAVE_EACH_CMD_MODE
 //#define SAVE_INFO_INTERVAL_MS 0
 
@@ -59,6 +59,11 @@ typedef struct {
   // Machine state
   xyze_pos_t current_position;
   uint16_t feedrate;
+  // BDU - Added
+
+  int16_t cur_feedrate_percentage;
+  uint16_t cur_flow_percentage[EXTRUDERS];
+  celsius_t cur_hotend_temp[EXTRUDERS];
 
   float zraise;
 
