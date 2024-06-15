@@ -252,8 +252,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
     // Feedrate and flowrate percentages
     info.cur_feedrate_percentage = feedrate_percentage;
-    for (unsigned int i = 0; i < EXTRUDERS; i++)
-      info.cur_flow_percentage[i] = planner.flow_percentage[i];
+    EXTRUDER_LOOP()
+      info.cur_flow_percentage[e] = planner.flow_percentage[e];
 
     // Misc. Marlin flags
     info.flag.dryrun = !!(marlin_debug_flags & MARLIN_DEBUG_DRYRUN);
@@ -575,8 +575,8 @@ void PrintJobRecovery::resume() {
 
   // Feedrate and flowrate tune values
   feedrate_percentage = info.cur_feedrate_percentage;
-  for (unsigned int i = 0; i < EXTRUDERS; i++)
-    planner.flow_percentage[i]  = info.cur_flow_percentage[i];
+  EXTRUDER_LOOP()
+    planner.flow_percentage[e]  = info.cur_flow_percentage[e];
 
   // Continue to apply PLR when a file is resumed!
   enable(true);
@@ -600,11 +600,10 @@ void PrintJobRecovery::resume() {
         DEBUG_EOL();
 
         DEBUG_ECHOLNPGM("feedrate: ", info.feedrate);
-
-        //BDU...Added
+        
         DEBUG_ECHOLNPGM("feedrate percentage: ", info.cur_feedrate_percentage);
-        for (unsigned int i = 0; i < EXTRUDERS; i++)
-          DEBUG_ECHOLN(F("extruder "), i + 1, F(" flow percentage: "), info.cur_flow_percentage[i]);
+        EXTRUDER_LOOP()
+          DEBUG_ECHOLN(F("extruder "), e + 1, F(" flow percentage: "), info.cur_flow_percentage[e]);
 
         DEBUG_ECHOLNPGM("zraise: ", info.zraise, " ", info.flag.raised ? "(before)" : "");
 
