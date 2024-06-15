@@ -59,12 +59,7 @@ typedef struct {
   // Machine state
   xyze_pos_t current_position;
   uint16_t feedrate;
-  // BDU - Added
-
-  int16_t cur_feedrate_percentage;
-  uint16_t cur_flow_percentage[EXTRUDERS];
-  celsius_t cur_hotend_temp[EXTRUDERS];
-
+  
   float zraise;
 
   // Repeat information
@@ -125,6 +120,10 @@ typedef struct {
 
   // Relative axis modes
   relative_t axis_relative;
+
+  // Feedrate and flowrate tune values
+  int16_t cur_feedrate_percentage;
+  uint16_t cur_flow_percentage[EXTRUDERS];
 
   // Misc. Marlin flags
   struct {
